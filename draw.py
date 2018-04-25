@@ -12,21 +12,41 @@ def scanline_convert(polygons, i, screen, zbuffer, color ):
 
     x_b, x_m, x_t = sorted([x1, x2, x3])
     y_b, y_m, y_t = sorted([y1, y2, y3])
+    z_b, z_m, z_t = sorted([z1, z2, z3])
 
     x_0, x_1 = x_b, x_b
     y = y_b
     z_0, z_1 = z_b, z_b
 
-    delx0 = (x_t - x_b) / (y_t - y_b)
-    delx1 = (x_m - x_b) / (y_m - y_b)
+    delx0 = float(x_t - x_b) / (y_t - y_b)
+    if y_m != y_b:
+        delx1 = float(x_m - x_b) / (y_m - y_b)
 
-    delz0 = (
+    delz0 = float(z_t - z_b) / (y_t - y_b)
+    if y_m != y_b:
+        delz1 = float(z_m - z_b) / (y_m - y_b)
 
-    while y <= y_m:
-        draw_line(x_0, y, z_0, x_1, y, z_1, screen, zbuffer, color)
+        while y <= y_m:
+            draw_line(int(math.floor(x_0)), int(y), int(math.floor(z_0)), int(math.ceil(x_1)), int(y), int(math.ceil(z_1)), screen, zbuffer, color)
 
-        x_0 += delx0
-        x_1 += delx1
+            x_0 += delx0
+            x_1 += delx1
+            z_0 += delz0
+            z_1 += delz1
+            y += 1
+
+    if y_t != y_m:
+        delx1 = float(x_t - x_m) / (y_t - y_m)
+        delz1 = float(z_t - z_m) / (y_t - y_m)
+
+        while y <= y_t:
+            draw_line(int(math.floor(x_0)), int(y), int(math.floor(z_0)), int(math.ceil(x_1)), int(y), int(math.ceil(z_1)), screen, zbuffer, color)
+
+            x_0 += delx0
+            x_1 += delx1
+            z_0 += delz0
+            z_1 += delz1
+            y += 1
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0);
@@ -34,6 +54,8 @@ def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x2, y2, z2);
 
 def draw_polygons( matrix, screen, zbuffer, color ):
+    RED = [255, 0, 0]
+    
     if len(matrix) < 2:
         print 'Need at least 3 points to draw'
         return
@@ -45,7 +67,7 @@ def draw_polygons( matrix, screen, zbuffer, color ):
 
         if normal[2] > 0: # Backface culling: only draw if the triangle is facing the user.
             # Scanline conversion: fill the triangle
-            scanline_convert(matrix, point, screen, zbuffer)
+            scanline_convert(matrix, point, screen, zbuffer, RED[:])
 
             # Draw the boundaries of the triangle.
             draw_line( int(matrix[point][0]),
@@ -271,7 +293,6 @@ def add_point( matrix, x, y, z=0 ):
 
 
 def draw_line( x0, y0, z0, x1, y1, z1, screen, zbuffer, color ):
-
     #swap points if going right -> left
     if x0 > x1:
         xt = x0
