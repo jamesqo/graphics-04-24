@@ -8,12 +8,12 @@ import math
 
 screen = new_screen()
 zbuffer = new_zbuffer()
-color = [ 0, 0, 0 ]
+color = [0, 0, 0]
 edges = []
 polygons = []
 transform = new_matrix()
 
 if len(argv) != 2:
-    parse_file( 'script', edges, polygons, transform, screen, zbuffer, color )
+    parse_file('script', edges, polygons, transform, screen, zbuffer, color)
 else:
-    parse_file( argv[1], edges, polygons, transform, screen, zbuffer, color )
+    parse_file(argv[1], edges, polygons, transform, screen, zbuffer, color)

@@ -1,7 +1,6 @@
 from display import *
 from matrix import *
 from draw import *
-
 """
 Goes through the file named filename and performs all of the actions listed in that file.
 The file follows the following format:
@@ -50,9 +49,13 @@ The file follows the following format:
 
 See the file script for an example of the file format
 """
-ARG_COMMANDS = [ 'line', 'scale', 'move', 'rotate', 'save', 'circle', 'bezier', 'hermite', 'box', 'sphere', 'torus' ]
+ARG_COMMANDS = [
+    'line', 'scale', 'move', 'rotate', 'save', 'circle', 'bezier', 'hermite',
+    'box', 'sphere', 'torus'
+]
 
-def parse_file( fname, edges, polygons, transform, screen, zbuffer, color ):
+
+def parse_file(fname, edges, polygons, transform, screen, zbuffer, color):
 
     f = open(fname)
     lines = f.readlines()
@@ -61,7 +64,7 @@ def parse_file( fname, edges, polygons, transform, screen, zbuffer, color ):
     clear_zbuffer(zbuffer)
     t = new_matrix()
     ident(t)
-    systems = [ t ]
+    systems = [t]
 
     step = 100
     step_3d = 20
@@ -72,79 +75,71 @@ def parse_file( fname, edges, polygons, transform, screen, zbuffer, color ):
         #``print ':' + line + ':'
 
         if line in ARG_COMMANDS:
-            c+= 1
+            c += 1
             args = lines[c].strip().split(' ')
             #print 'args\t' + str(args)
 
         if line == 'sphere':
             #print 'SPHERE\t' + str(args)
-            add_sphere(polygons,
-                       float(args[0]), float(args[1]), float(args[2]),
-                       float(args[3]), step_3d)
-            matrix_mult( systems[-1], polygons )
+            add_sphere(polygons, float(args[0]), float(args[1]), float(
+                args[2]), float(args[3]), step_3d)
+            matrix_mult(systems[-1], polygons)
             draw_polygons(polygons, screen, zbuffer, color)
             polygons = []
 
         elif line == 'torus':
             #print 'TORUS\t' + str(args)
-            add_torus(polygons,
-                      float(args[0]), float(args[1]), float(args[2]),
+            add_torus(polygons, float(args[0]), float(args[1]), float(args[2]),
                       float(args[3]), float(args[4]), step_3d)
-            matrix_mult( systems[-1], polygons )
+            matrix_mult(systems[-1], polygons)
             draw_polygons(polygons, screen, zbuffer, color)
             polygons = []
 
         elif line == 'box':
             #print 'BOX\t' + str(args)
-            add_box(polygons,
-                    float(args[0]), float(args[1]), float(args[2]),
+            add_box(polygons, float(args[0]), float(args[1]), float(args[2]),
                     float(args[3]), float(args[4]), float(args[5]))
-            matrix_mult( systems[-1], polygons )
+            matrix_mult(systems[-1], polygons)
             draw_polygons(polygons, screen, zbuffer, color)
             polygons = []
 
         elif line == 'circle':
             #print 'CIRCLE\t' + str(args)
-            add_circle(edges,
-                       float(args[0]), float(args[1]), float(args[2]),
+            add_circle(edges, float(args[0]), float(args[1]), float(args[2]),
                        float(args[3]), step)
-            matrix_mult( systems[-1], edges )
+            matrix_mult(systems[-1], edges)
             draw_lines(edges, screen, zbuffer, color)
             edges = []
 
         elif line == 'hermite' or line == 'bezier':
             #print 'curve\t' + line + ": " + str(args)
-            add_curve(edges,
-                      float(args[0]), float(args[1]),
-                      float(args[2]), float(args[3]),
-                      float(args[4]), float(args[5]),
-                      float(args[6]), float(args[7]),
-                      step, line)
-            matrix_mult( systems[-1], edges )
+            add_curve(edges, float(args[0]), float(args[1]), float(args[2]),
+                      float(args[3]), float(args[4]), float(args[5]),
+                      float(args[6]), float(args[7]), step, line)
+            matrix_mult(systems[-1], edges)
             draw_lines(edges, screen, zbuffer, color)
             edges = []
 
         elif line == 'line':
             #print 'LINE\t' + str(args)
 
-            add_edge( edges,
-                      float(args[0]), float(args[1]), float(args[2]),
-                      float(args[3]), float(args[4]), float(args[5]) )
-            matrix_mult( systems[-1], edges )
+            add_edge(edges, float(args[0]), float(args[1]), float(args[2]),
+                     float(args[3]), float(args[4]), float(args[5]))
+            matrix_mult(systems[-1], edges)
             draw_lines(eges, screen, zbuffer, color)
             edges = []
 
         elif line == 'scale':
             #print 'SCALE\t' + str(args)
             t = make_scale(float(args[0]), float(args[1]), float(args[2]))
-            matrix_mult( systems[-1], t )
-            systems[-1] = [ x[:] for x in t]
+            matrix_mult(systems[-1], t)
+            systems[-1] = [x[:] for x in t]
 
         elif line == 'move':
             #print 'MOVE\t' + str(args)
             t = make_translate(float(args[0]), float(args[1]), float(args[2]))
-            matrix_mult( systems[-1], t )
-            systems[-1] = [ x[:] for x in t]
+            matrix_mult(systems[-1], t)
+            systems[-1] = [x[:] for x in t]
 
         elif line == 'rotate':
             #print 'ROTATE\t' + str(args)
@@ -155,11 +150,11 @@ def parse_file( fname, edges, polygons, transform, screen, zbuffer, color ):
                 t = make_rotY(theta)
             else:
                 t = make_rotZ(theta)
-            matrix_mult( systems[-1], t )
-            systems[-1] = [ x[:] for x in t]
+            matrix_mult(systems[-1], t)
+            systems[-1] = [x[:] for x in t]
 
         elif line == 'push':
-            systems.append( [x[:] for x in systems[-1]] )
+            systems.append([x[:] for x in systems[-1]])
 
         elif line == 'pop':
             systems.pop()
@@ -173,4 +168,4 @@ def parse_file( fname, edges, polygons, transform, screen, zbuffer, color ):
                 display(screen)
             else:
                 save_extension(screen, args[0])
-        c+= 1
+        c += 1
